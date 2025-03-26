@@ -1,0 +1,34 @@
+#include <AFMotor.h>
+
+AF_DCMotor fan1(4); // M1 çıkışına bağlı fan
+AF_DCMotor fan2(3); // M2 çıkışına bağlı fan
+
+const int MQ135_Pin = A0;  // MQ135 hava kalite sensörü A0 pininde
+const int havaTemizLimit = 300; // Temiz hava için limit değer (deneyerek ayarla)
+
+void setup() {
+    Serial.begin(9600);
+
+    fan1.setSpeed(255);  // Fan1 maksimum hız
+    fan2.setSpeed(255);  // Fan2 maksimum hız
+
+    Serial.println("Sistem başlatıldı...");
+}
+
+void loop() {
+    int havaKalite = analogRead(MQ135_Pin);  // Hava kalitesini oku
+    Serial.print("Hava Kalite Değeri: ");
+    Serial.println(havaKalite);
+
+    if (havaKalite > havaTemizLimit) { 
+        Serial.println("HAVA KİRLİ! Fanlar açılıyor...");
+        fan1.run(FORWARD);  // Fan1 ileri döner
+        fan2.run(FORWARD); // Fan2 geri döner
+    } else {
+        Serial.println("Hava temiz, fanlar kapatılıyor...");
+        fan1.run(RELEASE);  // Fan1 durur
+        fan2.run(RELEASE);  // Fan2 durur
+    }
+
+    delay(2000); // 2 saniyede bir hava kalitesini kontrol et
+}
